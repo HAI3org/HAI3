@@ -1,3 +1,4 @@
+<!-- @standalone -->
 # Event-Driven Architecture (Canonical)
 
 ## AI WORKFLOW (REQUIRED)
@@ -70,3 +71,27 @@
   grep -R "import .*Slice .* from" src packages
 - Store access in actions:
   grep -R "getState.*app\\.|getState\\(\\).*\\." src "*Actions.ts"
+
+## MFE RUNTIME ISOLATION
+- Each MFE gets its own isolated instances of @hai3/react even when listed in sharedDependencies.
+- `singleton: false` (the default for MfeHandlerMF) causes the federation runtime to evaluate the shared code independently per MFE. Shared code is downloaded once but evaluated per MFE, so module-level singletons (eventBus, apiRegistry, store) are independent per MFE.
+- This gives each MFE its own isolated eventBus, apiRegistry, and store singletons.
+- MFE-internal events never cross runtime boundaries.
+- Host eventBus and MFE eventBus are completely separate instances.
+- FORBIDDEN: Emitting events intended for a different runtime.
+- FORBIDDEN: Subscribing to events from a different runtime (impossible by design).
+
+## CROSS-RUNTIME COMMUNICATION
+- Host <-> MFE communication is ONLY via shared properties and actions chains.
+- Shared properties: host sets domain properties, MFE reads via bridge.subscribeToProperty().
+- Actions chains: MFE calls bridge.executeActionsChain() to invoke host-side actions.
+- FORBIDDEN: Data proxying (MFE fetches data then forwards to host via events/bridge).
+- FORBIDDEN: Cross-runtime event emission (each runtime has its own eventBus).
+- Each runtime independently fetches all data it needs from its own API services.
+
+## MFE EVENT NAMING
+- MFE-internal events use format: mfe/<domain>/<eventName>.
+- Host events use format: app/<domain>/<eventName> or screensetId/domainId/eventName.
+- The mfe/ prefix distinguishes MFE-internal events from host events.
+- This is a naming convention only — events are isolated by design (separate eventBus instances).
+- Examples: mfe/profile/user-fetch-requested, mfe/profile/user-fetched, mfe/profile/user-fetch-failed.

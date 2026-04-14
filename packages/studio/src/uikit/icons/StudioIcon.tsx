@@ -1,10 +1,5 @@
+// @cpt-dod:cpt-hai3-dod-studio-devtools-panel-overlay:p1
 import React from 'react';
-
-/**
- * Studio Icon ID
- * Well-known constant defined where it belongs
- */
-export const STUDIO_ICON_ID = 'studio';
 
 /**
  * Studio Icon

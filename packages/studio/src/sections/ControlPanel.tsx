@@ -1,36 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector, screensetRegistry, selectScreenset, useTranslation, ScreensetCategory } from '@hai3/uicore';
+// @cpt-dod:cpt-hai3-dod-studio-devtools-control-panel:p1
+import React from 'react';
+import { useTranslation } from '@hai3/react';
+import { MfePackageSelector } from './MfePackageSelector';
 import { ThemeSelector } from './ThemeSelector';
-import { ScreensetSelector, type ScreensetOption } from './ScreensetSelector';
 import { LanguageSelector } from './LanguageSelector';
 import { ApiModeToggle } from './ApiModeToggle';
 
-/**
- * All possible screenset categories
- */
-const ALL_CATEGORIES: ScreensetCategory[] = [ScreensetCategory.Drafts, ScreensetCategory.Mockups, ScreensetCategory.Production];
-
-/**
- * Build screenset options for selector
- * Returns all categories, even if empty
- */
-const buildScreensetOptions = (): ScreensetOption[] => {
-  return ALL_CATEGORIES.map((category) => ({
-    category,
-    screensets: screensetRegistry.getMetadataByCategory(category),
-  }));
-};
-
+// @cpt-begin:cpt-hai3-dod-studio-devtools-control-panel:p1:inst-1
 export const ControlPanel: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const currentScreenset = useAppSelector((state) => state.uicore.layout.currentScreenset);
-  const [screensetOptions, setScreensetOptions] = useState<ScreensetOption[]>([]);
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const options = buildScreensetOptions();
-    setScreensetOptions(options);
-  }, []);
 
   return (
     <div className="space-y-4">
@@ -40,13 +18,7 @@ export const ControlPanel: React.FC = () => {
         </h3>
 
         <div className="space-y-3">
-          {screensetOptions.length > 0 && (
-            <ScreensetSelector
-              options={screensetOptions}
-              currentValue={currentScreenset}
-              onChange={(value: string) => dispatch(selectScreenset(value))}
-            />
-          )}
+          <MfePackageSelector />
           <ApiModeToggle />
           <ThemeSelector />
           <LanguageSelector />
@@ -56,4 +28,5 @@ export const ControlPanel: React.FC = () => {
   );
 };
 
-ControlPanel.displayName = 'ControlPanel';
+ ControlPanel.displayName = 'ControlPanel';
+// @cpt-end:cpt-hai3-dod-studio-devtools-control-panel:p1:inst-1

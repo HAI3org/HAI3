@@ -1,8 +1,13 @@
+// @cpt-flow:cpt-hai3-flow-studio-devtools-restore-settings:p1
+// @cpt-state:cpt-hai3-state-studio-devtools-panel-visibility:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-persistence:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-conditional-loading:p1
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { I18nRegistry, Language, i18nRegistry } from '@hai3/uicore';
+import { I18nRegistry, Language, i18nRegistry, useHAI3 } from '@hai3/react';
 import { saveStudioState, loadStudioState } from './utils/persistence';
 import { STORAGE_KEYS } from './types';
 import { initPersistenceEffects } from './effects/persistenceEffects';
+import { useRestoreStudioSettings, useRestoreGtsPackage } from './hooks/useRestoreStudioSettings';
 
 /**
  * Studio Translation Loader
@@ -63,6 +68,16 @@ interface StudioContextValue {
 
 const StudioContext = createContext<StudioContextValue | undefined>(undefined);
 
+/**
+ * Runs GTS Package restore when registry is available.
+ * Must be mounted inside StudioProvider and under HAI3Provider (useHAI3).
+ */
+const RestoreGtsPackageOnMount: React.FC = () => {
+  const app = useHAI3();
+  useRestoreGtsPackage(app.screensetsRegistry);
+  return null;
+};
+
 export const useStudioContext = () => {
   const context = useContext(StudioContext);
   if (!context) {
@@ -75,6 +90,8 @@ interface StudioProviderProps {
   children: ReactNode;
 }
 
+// @cpt-begin:cpt-hai3-state-studio-devtools-panel-visibility:p1:inst-1
+// @cpt-begin:cpt-hai3-dod-studio-devtools-persistence:p1:inst-1
 export const StudioProvider: React.FC<StudioProviderProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(() =>
     loadStudioState(STORAGE_KEYS.COLLAPSED, false)
@@ -86,6 +103,9 @@ export const StudioProvider: React.FC<StudioProviderProps> = ({ children }) => {
     const cleanup = initPersistenceEffects();
     return cleanup;
   }, []);
+
+  // Restore theme, language, mock from localStorage
+  useRestoreStudioSettings();
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((prev) => {
@@ -104,9 +124,12 @@ export const StudioProvider: React.FC<StudioProviderProps> = ({ children }) => {
         setPortalContainer,
       }}
     >
+      <RestoreGtsPackageOnMount />
       {children}
     </StudioContext.Provider>
   );
 };
 
 StudioProvider.displayName = 'StudioProvider';
+// @cpt-end:cpt-hai3-state-studio-devtools-panel-visibility:p1:inst-1
+// @cpt-end:cpt-hai3-dod-studio-devtools-persistence:p1:inst-1

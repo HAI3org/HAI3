@@ -1,9 +1,9 @@
-# HAI3 UI-Core Quick Start Guide
+# HAI3 Quick Start Guide
 
 > **TARGET AUDIENCE:** Humans
 > **PURPOSE:** Quick start guide for developers
 
-This guide will help you get started with HAI3 UI-Core development.
+This guide will help you get started with HAI3 development.
 
 ## Installation
 
@@ -12,29 +12,38 @@ This guide will help you get started with HAI3 UI-Core development.
    npm ci
    ```
 
-2. **Start development server**
+2. **Build packages**
+   ```bash
+   npm run build:packages
+   ```
+
+3. **Start development server**
    ```bash
    npm run dev
    ```
 
-3. **Open browser**
+4. **Open browser**
    Navigate to `http://localhost:5173`
 
 ## Project Structure Overview
 
-```
+```text
+packages/                           # Workspace packages
+├── state/                          # SDK L1: Event bus and state primitives
+├── screensets/                     # SDK L1: Screenset and MFE contracts
+├── api/                            # SDK L1: API services and protocols
+├── i18n/                           # SDK L1: Internationalization
+├── framework/                      # L2: Plugin system and registries
+├── react/                          # L3: React bindings and hooks
+├── studio/                         # Development overlay (dev only)
+└── cli/                            # CLI tool for project scaffolding
+
 src/
-├── core/               # Core UI implementation
-│   ├── layout/         # CoreLayout component
-│   ├── store/          # Redux store (global state)
-│   └── hooks/          # Typed Redux hooks
-├── uikit/              # Reusable UI components
-│   └── layout/         # Layout components (Header, Footer, Menu, etc.)
-├── screensets/         # Screensets (category in config)
-│   ├── demo/           # Demo screenset
-│   └── chat/           # Chat screenset
-├── styles/             # Global styles and themes
-└── lib/                # Utility functions
+├── app/                            # Host application shell
+│   ├── components/ui/              # App-owned UI primitives
+│   ├── layout/                     # Layout components
+│   └── themes/                     # Theme tokens and registries
+└── mfe_packages/                   # Demo and blank MFE packages
 ```
 
 ## Creating Your First Screen
@@ -118,31 +127,26 @@ const [open, setOpen] = useState(false);
 
 ### Read state
 ```typescript
-import { useAppSelector } from '@/core/hooks/useRedux';
+import { useAppSelector } from '@hai3/react';
 
 const MyComponent = () => {
-  const layout = useAppSelector(state => state.layout);
-  const user = useAppSelector(state => state.core.user);
+  const collapsed = useAppSelector(state => state['layout/menu'].collapsed);
 
-  return <div>Menu collapsed: {layout.menuCollapsed}</div>;
+  return <div>Menu collapsed: {collapsed}</div>;
 };
 ```
 
-### Dispatch actions
+### Use event-driven actions (recommended)
 ```typescript
-import { useAppDispatch } from '@/core/hooks/useRedux';
-import { toggleMenu, setUser } from '@/core/store';
+import { useHAI3Actions } from '@hai3/react';
 
 const MyComponent = () => {
-  const dispatch = useAppDispatch();
-
-  const handleToggle = () => {
-    dispatch(toggleMenu());
-  };
-
-  return <button onClick={handleToggle}>Toggle Menu</button>;
+  const { toggleMenu } = useHAI3Actions();
+  return <button onClick={toggleMenu}>Toggle Menu</button>;
 };
 ```
+
+HAI3 uses event-driven architecture. Prefer action creators that emit events over direct dispatch.
 
 ## Styling with Tailwind
 
@@ -164,11 +168,11 @@ HAI3 uses Tailwind CSS with custom theme tokens:
 - `muted` - Muted color
 - `border` - Border color
 
-## Adding a New UIKit Component
+## Adding a New UI Component
 
 1. **Create component file**
    ```bash
-   touch src/uikit/Button.tsx
+   touch src/app/components/ui/button.tsx
    ```
 
 2. **Implement component**
@@ -205,60 +209,37 @@ HAI3 uses Tailwind CSS with custom theme tokens:
    };
    ```
 
-3. **Export from uikit**
+3. **Import it where needed**
    ```typescript
-   // src/uikit/index.ts
-   export { Button, type ButtonProps } from './Button';
+   import { Button } from '@/components/ui/button';
    ```
 
 ## Creating a Screenset
 
-Screensets are vertical slices of your application. Each screenset follows the vertical slice pattern with screens.
+Screensets are vertical slices of your application. Use the HAI3 CLI to create them:
 
-1. **Create screenset directory structure**
-   ```bash
-   mkdir -p src/screensets/my-screenset/screens/home
-   mkdir -p src/screensets/my-screenset/screens/settings
-   ```
+```bash
+# Create a new screenset
+hai3 screenset create my-screenset
 
-2. **Create screen components and slices**
-   ```bash
-   # Home screen
-   touch src/screensets/my-screenset/screens/home/HomeScreen.tsx
-   touch src/screensets/my-screenset/screens/home/homeSlice.ts
-   touch src/screensets/my-screenset/screens/home/index.ts
-
-   # Settings screen
-   touch src/screensets/my-screenset/screens/settings/SettingsScreen.tsx
-   touch src/screensets/my-screenset/screens/settings/settingsSlice.ts
-   touch src/screensets/my-screenset/screens/settings/index.ts
-   ```
-
-3. **Create supporting files**
-   ```bash
-   touch src/screensets/my-screenset/data.ts      # Simulated data
-   touch src/screensets/my-screenset/api.ts       # API simulation
-   touch src/screensets/my-screenset/store.ts     # Store configuration (optional)
-   touch src/screensets/my-screenset/index.ts     # Public exports
-   ```
+# Or copy an existing one with transformed IDs
+hai3 screenset copy demo myDemo
+```
 
 ### Example Screenset Structure:
 ```
 my-screenset/
-├── screens/              # Vertical slices (component + Redux slice)
-│   ├── home/
-│   │   ├── HomeScreen.tsx        # Screen component
-│   │   ├── homeSlice.ts          # Redux slice
-│   │   └── index.ts              # Exports component, actions, reducer
-│   └── settings/
-│       ├── SettingsScreen.tsx
-│       ├── settingsSlice.ts
-│       └── index.ts
-├── data.ts               # Simulated data for the screenset
-├── api.ts                # API simulation layer
-├── store.ts              # Store configuration (optional)
-└── index.ts              # Public exports
+├── ids.ts                # All IDs centralized here
+├── screens/              # Screen components
+│   └── home/
+│       ├── HomeScreen.tsx
+│       └── i18n/         # Per-screen translations
+├── i18n/                 # Screenset-level translations
+├── components/ui/        # Local UI primitives (optional)
+└── myScreensetScreenset.tsx  # Self-registering config
 ```
+
+Screensets auto-register via Vite glob pattern - no manual import needed.
 
 ## Development Best Practices
 
@@ -267,9 +248,9 @@ my-screenset/
    - Explicit function return types
    - Proper generics
 
-2. **Use UIKit components**
+2. **Use local UI components**
    - Don't create custom components inline
-   - Extract reusable logic to UIKit
+   - Extract reusable logic to `components/ui`
 
 3. **Follow Redux patterns**
    - Actions for all state changes
@@ -290,23 +271,26 @@ my-screenset/
 ```bash
 # Development
 npm run dev              # Start dev server
-npm run build           # Build for production
-npm run preview         # Preview production build
+npm run build            # Build for production
+npm run build:packages   # Build workspace packages only
+npm run preview          # Preview production build
 
-# Code Quality
-npm run lint            # Run ESLint
-npm run type-check      # Check TypeScript types
+# Validation (run before commits)
+npm run lint             # Run ESLint
+npm run type-check       # Check TypeScript types
+npm run arch:check       # Architecture tests (must pass)
+npm run arch:deps        # Dependency rules check
 
 # Clean
-rm -rf node_modules     # Remove dependencies
-npm install             # Reinstall dependencies
+npm run clean:deps       # Remove node_modules + reinstall
+npm run clean:build      # Clean + build from scratch
 ```
 
 ## Next Steps
 
 - Read [AI Guidelines](./.ai/GUIDELINES.md) for AI coding rules and patterns
-- Review [MANIFEST.md](./docs/MANIFEST.md) for project philosophy
-- Explore the existing components in `src/uikit/layout/`
+- Review [PRD.md](./architecture/PRD.md) for project philosophy
+- Explore the existing components in `src/app/components/ui/`
 - Build your first screen in `src/screensets/my-screenset/`
 
 ## Getting Help

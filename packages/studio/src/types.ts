@@ -1,3 +1,6 @@
+// @cpt-dod:cpt-hai3-dod-studio-devtools-panel-overlay:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-persistence:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-viewport-clamping:p1
 /**
  * Position coordinates for the Studio panel
  */
@@ -56,4 +59,8 @@ export const STORAGE_KEYS = {
   SIZE: `${STORAGE_PREFIX}size`,
   COLLAPSED: `${STORAGE_PREFIX}collapsed`,
   BUTTON_POSITION: `${STORAGE_PREFIX}buttonPosition`,
+  THEME: `${STORAGE_PREFIX}theme`,
+  LANGUAGE: `${STORAGE_PREFIX}language`,
+  MOCK_ENABLED: `${STORAGE_PREFIX}mockEnabled`,
+  ACTIVE_PACKAGE_ID: `${STORAGE_PREFIX}activePackageId`,
 } as const;

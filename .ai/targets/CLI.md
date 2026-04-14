@@ -1,3 +1,4 @@
+<!-- @standalone:override -->
 # CLI Guidelines
 
 ## AI WORKFLOW (REQUIRED)
@@ -18,14 +19,14 @@
 - templates/ is a BUILD ARTIFACT (gitignored); NEVER commit or reference as source.
 
 ## PRESET STRUCTURE
-- presets/standalone/configs/: .eslintrc.cjs, .dependency-cruiser.cjs, tsconfig.json
+- presets/standalone/configs/: eslint.config.js, .dependency-cruiser.cjs, tsconfig.json
 - presets/standalone/scripts/: test-architecture.ts
 - presets/monorepo/configs/: extends standalone/configs/ with package rules
 - presets/monorepo/scripts/: imports standalone/scripts/ and adds monorepo checks
 
 ## CRITICAL RULES
 - REQUIRED: presets/monorepo/ extends presets/standalone/ (not reverse).
-- REQUIRED: Root .eslintrc.cjs re-exports presets/monorepo/configs/.eslintrc.cjs.
+- REQUIRED: Root eslint.config.js re-exports presets/monorepo/configs/eslint.config.js.
 - REQUIRED: Root .dependency-cruiser.cjs re-exports presets/monorepo/configs/.dependency-cruiser.cjs.
 - REQUIRED: Root tsconfig.json extends presets/monorepo/configs/tsconfig.json.
 - REQUIRED: npm run arch:check runs presets/monorepo/scripts/test-architecture.ts directly.
@@ -40,9 +41,15 @@
 ## BUILD PROCESS (copy-templates.ts)
 - REQUIRED: Clean templates/ before copying.
 - REQUIRED: Copy standalone presets from presets/standalone/configs/ and presets/standalone/scripts/.
-- REQUIRED: Copy directories (.ai, .cursor, .windsurf, src/themes, src/uikit, src/icons, eslint-plugin-local).
+- REQUIRED: Copy directories (.ai, .cursor, .windsurf, src/themes, src/icons, eslint-plugin-local).
 - REQUIRED: Copy demo screenset and _blank as screenset-template.
 - REQUIRED: Write manifest.json for runtime discovery.
+- REQUIRED: Exclude generated files from templates.
+
+## UPDATE COMMAND (templates.ts syncTemplates)
+- REQUIRED: Preserve user-created content in src/screensets/ and src/themes/.
+- REQUIRED: Only replace items that exist in templates (selective sync).
+- FORBIDDEN: Exclusion lists to preserve files; use selective sync instead.
 
 ## SCREENSET COMMANDS
 - REQUIRED: hai3 screenset create uses screenset-template (from _blank).
@@ -54,7 +61,7 @@
 
 ## PROJECT GENERATOR
 - REQUIRED: Include eslint-plugin-unused-imports in devDependencies.
-- REQUIRED: Include @hai3/uikit/styles import when uikit=hai3.
+- REQUIRED: Include the default UI kit styles import (users can swap UI kit in main.tsx).
 - REQUIRED: Use workspace pattern for eslint-plugin-local.
 - FORBIDDEN: Hardcode package versions (except for initial template).
 

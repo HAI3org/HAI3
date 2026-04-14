@@ -1,8 +1,11 @@
 /**
  * String transformation utilities for code generation
  */
+// @cpt-algo:cpt-hai3-algo-cli-tooling-generate-project:p1
+// @cpt-dod:cpt-hai3-dod-cli-tooling-templates:p1
 
-import { upperFirst, lowerFirst, toUpper, toLower } from 'lodash';
+import lodash from 'lodash';
+const { upperFirst, lowerFirst, toUpper, toLower } = lodash;
 
 /**
  * Escape special regex characters in a string

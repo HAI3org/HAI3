@@ -1,31 +1,32 @@
+// @cpt-flow:cpt-hai3-flow-studio-devtools-theme-change:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-control-panel:p1
 import React from 'react';
 import { upperFirst } from 'lodash';
-import { useAppDispatch, useAppSelector, useTranslation } from '@hai3/uicore';
-import { ButtonVariant } from '@hai3/uikit-contracts';
-import { changeTheme, themeRegistry } from '@hai3/uicore';
+import { useTheme, useTranslation } from '@hai3/react';
+import { ButtonVariant } from '../uikit/types';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownButton,
-} from '@hai3/uikit';
+} from '../uikit/base/dropdown-menu';
+import { DropdownButton } from '../uikit/composite/DropdownButton';
 import { useStudioContext } from '../StudioProvider';
 
 /**
  * ThemeSelector Component
- * Redux-aware component for theme selection using DropdownMenu
+ * Uses useTheme hook for theme selection using DropdownMenu
  */
 
 export interface ThemeSelectorProps {
   className?: string;
 }
 
+// @cpt-begin:cpt-hai3-flow-studio-devtools-theme-change:p1:inst-1
 export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   className = '',
 }) => {
-  const dispatch = useAppDispatch();
-  const currentTheme = useAppSelector((state) => state.uicore.layout.theme);
+  const { currentTheme, themes, setTheme } = useTheme();
   const { portalContainer } = useStudioContext();
   const { t } = useTranslation();
 
@@ -36,9 +37,6 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       .join(' ');
   };
 
-  // Get themes directly from registry
-  const availableThemes = themeRegistry.getThemeNames();
-
   return (
     <div className={`flex items-center justify-between ${className}`}>
       <label className="text-sm text-muted-foreground whitespace-nowrap">
@@ -47,16 +45,16 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <DropdownButton variant={ButtonVariant.Outline}>
-            {formatThemeName(currentTheme)}
+            {formatThemeName(currentTheme || '')}
           </DropdownButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" container={portalContainer} className="z-[99999] pointer-events-auto">
-          {availableThemes.map((themeName) => (
+          {themes.map((theme) => (
             <DropdownMenuItem
-              key={themeName}
-              onClick={() => dispatch(changeTheme(themeName))}
+              key={theme.id}
+              onClick={() => setTheme(theme.id)}
             >
-              {formatThemeName(themeName)}
+              {formatThemeName(theme.name || theme.id)}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
@@ -66,3 +64,4 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 };
 
 ThemeSelector.displayName = 'ThemeSelector';
+// @cpt-end:cpt-hai3-flow-studio-devtools-theme-change:p1:inst-1

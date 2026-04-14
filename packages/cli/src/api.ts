@@ -8,25 +8,24 @@
  * ```typescript
  * import { executeCommand, commands } from '@hai3/cli';
  *
- * // Create a screenset programmatically
+ * // Create a project programmatically
  * const result = await executeCommand(
- *   commands.screensetCreate,
- *   { name: 'billing', category: 'drafts' },
+ *   commands.create,
+ *   { projectName: 'my-app' },
  *   { interactive: false }
  * );
  *
  * if (result.success) {
- *   console.log('Created files:', result.data.files);
+ *   console.log('Created project:', result.data.projectPath);
  * }
  * ```
  */
+// @cpt-dod:cpt-hai3-dod-cli-tooling-package:p1
 
 // Import commands for the commands object
 import {
   createCommand as _createCommand,
   updateCommand as _updateCommand,
-  screensetCreateCommand as _screensetCreateCommand,
-  screensetCopyCommand as _screensetCopyCommand,
 } from './commands/index.js';
 
 // Core infrastructure
@@ -45,6 +44,7 @@ export type {
   CommandContext,
   CommandDefinition,
   Hai3Config,
+  ConfigLoadResult,
   ScreensetCategory,
   ArgDefinition,
   OptionDefinition,
@@ -61,8 +61,6 @@ export type {
 export {
   createCommand,
   updateCommand,
-  screensetCreateCommand,
-  screensetCopyCommand,
 } from './commands/index.js';
 
 // Command types
@@ -71,16 +69,11 @@ export type {
   CreateCommandResult,
   UpdateCommandArgs,
   UpdateCommandResult,
-  ScreensetCreateArgs,
-  ScreensetCreateResult,
-  ScreensetCopyArgs,
-  ScreensetCopyResult,
 } from './commands/index.js';
 
 // Generators (for advanced use cases)
 export {
   generateProject,
-  generateScreenset,
   generateI18nStubs,
   toPascalCase,
   toCamelCase,
@@ -95,7 +88,6 @@ export {
 // Generator types
 export type {
   ProjectGeneratorInput,
-  ScreensetGeneratorInput,
   I18nGeneratorInput,
   IdTransformation,
 } from './generators/index.js';
@@ -120,6 +112,4 @@ export {
 export const commands = {
   create: _createCommand,
   update: _updateCommand,
-  screensetCreate: _screensetCreateCommand,
-  screensetCopy: _screensetCopyCommand,
 } as const;

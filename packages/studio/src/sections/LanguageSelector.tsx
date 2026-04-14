@@ -1,12 +1,14 @@
-import { useTranslation, LanguageDisplayMode, TextDirection } from '@hai3/uicore';
-import { ButtonVariant } from '@hai3/uikit-contracts';
+// @cpt-flow:cpt-hai3-flow-studio-devtools-language-change:p1
+// @cpt-dod:cpt-hai3-dod-studio-devtools-control-panel:p1
+import { useTranslation, LanguageDisplayMode, TextDirection, SUPPORTED_LANGUAGES, getLanguageMetadata, type Language } from '@hai3/react';
+import { ButtonVariant } from '../uikit/types';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  Button,
-} from '@hai3/uikit';
+} from '../uikit/base/dropdown-menu';
+import { Button } from '../uikit/base/button';
 import { useStudioContext } from '../StudioProvider';
 
 /**
@@ -30,14 +32,14 @@ export interface LanguageSelectorProps {
  * Changes apply immediately without page reload
  * Automatically updates HTML dir attribute for RTL support
  */
+// @cpt-begin:cpt-hai3-flow-studio-devtools-language-change:p1:inst-1
 export function LanguageSelector({
   displayMode = LanguageDisplayMode.Native
 }: LanguageSelectorProps = {}) {
-  const { t, language, changeLanguage, getSupportedLanguages } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const { portalContainer } = useStudioContext();
 
-  const languages = getSupportedLanguages();
-  const currentLanguage = languages.find(lang => lang.code === language);
+  const currentLanguage = language ? getLanguageMetadata(language) : null;
 
   return (
     <div className="flex items-center justify-between">
@@ -54,10 +56,10 @@ export function LanguageSelector({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" container={portalContainer} className="z-[99999] pointer-events-auto">
-          {languages.map((lang) => (
+          {SUPPORTED_LANGUAGES.map((lang) => (
             <DropdownMenuItem
               key={lang.code}
-              onClick={() => changeLanguage(lang.code)}
+              onClick={() => setLanguage(lang.code as Language)}
             >
               {displayMode === LanguageDisplayMode.Native ? lang.name : lang.englishName}
               {lang.direction === TextDirection.RightToLeft && RTL_INDICATOR_SUFFIX}
@@ -68,3 +70,4 @@ export function LanguageSelector({
     </div>
   );
 }
+// @cpt-end:cpt-hai3-flow-studio-devtools-language-change:p1:inst-1
